@@ -2,6 +2,7 @@
 // 管理后台：静态壳，所有操作走 /api/*（Pages Functions），数据在 GitHub 仓库
 import EasyMDE from "easymde";
 import "easymde/dist/easymde.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -90,13 +91,12 @@ import "easymde/dist/easymde.min.css";
 		/* ---- EasyMDE 暗色适配（必须 is:global，编辑器 DOM 是运行时生成的） ---- */
 		.EasyMDEContainer { --ed-bg: oklch(0.19 0.015 250); }
 		.EasyMDEContainer .CodeMirror {
-			height: auto; min-height: 22rem;
 			background: var(--ed-bg); color: oklch(0.88 0.01 250);
 			border: 1px solid oklch(0.32 0.02 250); border-radius: 0 0 0.5rem 0.5rem;
 			font-family: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-			font-size: 14px; line-height: 1.7; padding: 0.5rem 0.25rem;
+			font-size: 14px; line-height: 1.7;
 		}
-		.EasyMDEContainer .CodeMirror-scroll { min-height: 22rem; }
+		.EasyMDEContainer .CodeMirror-scroll { min-height: 20rem; }
 		.EasyMDEContainer .CodeMirror-cursor { border-left-color: var(--ac); }
 		.EasyMDEContainer .CodeMirror-selected { background: oklch(0.35 0.07 250 / 0.6) !important; }
 		.EasyMDEContainer .CodeMirror-gutters { background: var(--ed-bg); border-right: 1px solid oklch(0.28 0.02 250); }
@@ -109,6 +109,23 @@ import "easymde/dist/easymde.min.css";
 		.EasyMDEContainer .editor-toolbar a:hover { background: oklch(0.32 0.05 250) !important; border-color: transparent !important; }
 		.EasyMDEContainer .editor-toolbar a.active { background: oklch(0.42 0.11 250) !important; border-color: transparent !important; }
 		.EasyMDEContainer .editor-toolbar.separator { border-left-color: oklch(0.35 0.02 250); }
+		/* EasyMDE 2.21 按钮只有 fa-xxx 裸类名；FA6 把图标码存在 --fa 变量里，
+		   base 字体和 content 都要在这里补上，否则按钮全部无图标 */
+		.editor-toolbar button[class*="fa-"]::before, .editor-toolbar a[class*="fa-"]::before {
+			font-family: "Font Awesome 7 Free", "Font Awesome 6 Free"; font-weight: 900; font-style: normal;
+			content: var(--fa); display: inline-block; text-rendering: auto;
+		}
+		/* FA7 改名后这些 EasyMDE 2.21 的旧类名没有 --fa 变量，手工补码点 */
+		.editor-toolbar button.fa-quote::before { --fa: "\f10d"; }
+		.editor-toolbar button.fa-unordered-list::before { --fa: "\f0ca"; }
+		.editor-toolbar button.fa-ordered-list::before { --fa: "\f0cb"; }
+		.editor-toolbar button.fa-preview::before { --fa: "\f06e"; }
+		.editor-toolbar button.fa-side-by-side::before { --fa: "\f0db"; }
+		.editor-toolbar button.fa-fullscreen::before { --fa: "\f31e"; }
+		/* active/悬停的浅色背景换成主题色 */
+		.editor-toolbar button.active, .editor-toolbar button:hover {
+			background: oklch(0.42 0.11 250) !important; border-color: transparent !important; color: #fff;
+		}
 		.EasyMDEContainer .editor-preview, .EasyMDEContainer .editor-preview-side {
 			background: oklch(0.17 0.015 250); color: oklch(0.88 0.01 250);
 		}
@@ -216,51 +233,59 @@ import "easymde/dist/easymde.min.css";
 	let filter = "all";
 	let allPosts = [];
 	let editing = null; // { file, sha } 或 null=新建
+	let mde = null;
 
-	const mde = new EasyMDE({
-		element: $("body"),
-		spellChecker: false,
-		sideBySide: true,
-		uploadImages: true,
-		imageUploadFunction: (file, onSuccess, onError) => {
-			const reader = new FileReader();
-			reader.onload = async () => {
-				try {
-					const r = await api("/api/upload", {
-						method: "POST",
-						body: { filename: file.name, base64: reader.result.split(",")[1] },
-					});
-					toast("图片已上传，站点构建完成后即可显示（约 1~2 分钟）");
-					onSuccess(r.url);
-				} catch (e) {
-					onError(String(e.message || e));
-				}
-			};
-			reader.onerror = () => onError("读取文件失败");
-			reader.readAsDataURL(file);
-		},
-		imageAccept: "image/png, image/jpeg, image/gif, image/webp, image/avif, image/svg+xml",
-		status: ["lines", "words"],
-		placeholder: "用 Markdown 写正文，支持直接粘贴图片……",
-		toolbar: [
-			{ name: "bold", action: EasyMDE.toggleBold, title: "加粗 (Ctrl+B)" },
-			{ name: "italic", action: EasyMDE.toggleItalic, title: "斜体 (Ctrl+I)" },
-			{ name: "heading", action: EasyMDE.toggleHeadingSmaller, title: "标题 (Ctrl+H)" },
-			"|",
-			{ name: "quote", action: EasyMDE.toggleBlockquote, title: "引用 (Ctrl+Q)" },
-			{ name: "unordered-list", action: EasyMDE.toggleUnorderedList, title: "无序列表" },
-			{ name: "ordered-list", action: EasyMDE.toggleOrderedList, title: "有序列表" },
-			"|",
-			{ name: "code", action: EasyMDE.toggleCodeBlock, title: "代码块 (Ctrl+`)" },
-			{ name: "table", action: EasyMDE.drawTable, title: "表格" },
-			{ name: "link", action: EasyMDE.drawLink, title: "插入链接 (Ctrl+K)" },
-			{ name: "image", action: EasyMDE.drawImage, title: "插入图片（可拖拽/粘贴）" },
-			"|",
-			{ name: "preview", action: EasyMDE.togglePreview, title: "预览 (Ctrl+P)" },
-			{ name: "side-by-side", action: EasyMDE.toggleSideBySide, title: "双栏实时预览 (F9)" },
-			{ name: "fullscreen", action: EasyMDE.toggleFullScreen, title: "全屏 (F11)" },
-		],
-	});
+	// 编辑器懒创建：页面加载时编辑器容器是 display:none，提前初始化会导致
+	// 双栏预览等布局建立不起来
+	function ensureMde() {
+		if (mde) return mde;
+		mde = new EasyMDE({
+			element: $("body"),
+			spellChecker: false,
+			sideBySide: true,
+			uploadImages: true,
+			toolbarButtonClassPrefix: "fa",
+			imageUploadFunction: (file, onSuccess, onError) => {
+				const reader = new FileReader();
+				reader.onload = async () => {
+					try {
+						const r = await api("/api/upload", {
+							method: "POST",
+							body: { filename: file.name, base64: reader.result.split(",")[1] },
+						});
+						toast("图片已上传，站点构建完成后即可显示（约 1~2 分钟）");
+						onSuccess(r.url);
+					} catch (e) {
+						onError(String(e.message || e));
+					}
+				};
+				reader.onerror = () => onError("读取文件失败");
+				reader.readAsDataURL(file);
+			},
+			imageAccept: "image/png, image/jpeg, image/gif, image/webp, image/avif, image/svg+xml",
+			status: ["lines", "words"],
+			placeholder: "用 Markdown 写正文，支持直接粘贴图片……",
+			toolbar: [
+				{ name: "bold", action: EasyMDE.toggleBold, title: "加粗" },
+				{ name: "italic", action: EasyMDE.toggleItalic, title: "斜体" },
+				{ name: "heading", action: EasyMDE.toggleHeadingSmaller, title: "标题" },
+				"|",
+				{ name: "quote", action: EasyMDE.toggleBlockquote, title: "引用" },
+				{ name: "unordered-list", action: EasyMDE.toggleUnorderedList, title: "无序列表" },
+				{ name: "ordered-list", action: EasyMDE.toggleOrderedList, title: "有序列表" },
+				"|",
+				{ name: "code", action: EasyMDE.toggleCodeBlock, title: "代码块" },
+				{ name: "table", action: EasyMDE.drawTable, title: "表格" },
+				{ name: "link", action: EasyMDE.drawLink, title: "插入链接" },
+				{ name: "image", action: EasyMDE.drawImage, title: "插入图片（可拖拽/粘贴）" },
+				"|",
+				{ name: "preview", action: EasyMDE.togglePreview, title: "预览" },
+				{ name: "side-by-side", action: EasyMDE.toggleSideBySide, title: "双栏实时预览" },
+				{ name: "fullscreen", action: EasyMDE.toggleFullScreen, title: "全屏" },
+			],
+		});
+		return mde;
+	}
 
 	function toast(msg, err = false) {
 		const t = $("toast");
@@ -334,6 +359,11 @@ import "easymde/dist/easymde.min.css";
 	function today() { return new Date().toISOString().slice(0, 10); }
 
 	function openEditor(post = null) {
+		ensureMde();
+		// sideBySide 选项在隐藏容器里初始化时不一定生效，这里兜底激活双栏
+		if (!document.querySelector(".editor-preview-side.editor-preview-active-side")) {
+			mde.toggleSideBySide();
+		}
 		editing = post ? { file: post.file, sha: post.sha } : null;
 		$("editor-title").textContent = post ? `编辑：${post.title}` : "新建文章";
 		$("f-title").value = "";

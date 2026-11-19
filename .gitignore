@@ -32,3 +32,6 @@ yarn.lock
 
 # wrangler local dev secrets
 .dev.vars
+
+# wrangler 本地状态
+.wrangler/
