@@ -10,68 +10,123 @@ import "easymde/dist/easymde.min.css";
 	<meta name="viewport" content="width=device-width" />
 	<meta name="robots" content="noindex, nofollow" />
 	<title>后台管理 · xibie 的博客</title>
-	<style>
-		:root { color-scheme: dark; }
+	<style is:global>
+		:root { color-scheme: dark; --ac: oklch(0.72 0.12 250); }
 		* { box-sizing: border-box; }
 		body {
 			margin: 0; min-height: 100vh;
-			background: oklch(0.16 0.014 250); color: oklch(0.92 0.01 250);
+			background:
+				radial-gradient(60rem 30rem at 85% -10%, oklch(0.32 0.09 250 / 0.55), transparent 60%),
+				radial-gradient(50rem 28rem at -10% 110%, oklch(0.28 0.08 290 / 0.4), transparent 60%),
+				oklch(0.15 0.015 250);
+			color: oklch(0.92 0.01 250);
 			font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
 			font-size: 15px;
 		}
-		main { max-width: 62rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+		main { max-width: 78rem; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
 		header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-		header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+		header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; letter-spacing: 0.02em; }
+		header h1::before { content: "✦ "; color: var(--ac); }
 		header a { color: oklch(0.75 0.1 250); text-decoration: none; font-size: 0.85rem; }
+		header a:hover { text-decoration: underline; }
 		.card {
-			background: oklch(0.23 0.015 250); border-radius: 1rem; padding: 1.5rem;
-			box-shadow: 0 2px 12px oklch(0 0 0 / 0.25);
+			background: oklch(0.22 0.018 250 / 0.92); border: 1px solid oklch(1 0 0 / 0.07);
+			border-radius: 1rem; padding: 1.5rem;
+			box-shadow: 0 4px 24px oklch(0 0 0 / 0.3);
+			backdrop-filter: blur(6px);
 		}
 		.hidden { display: none !important; }
 		input, textarea {
 			width: 100%; padding: 0.55rem 0.75rem; border-radius: 0.5rem;
-			border: 1px solid oklch(0.35 0.02 250); background: oklch(0.2 0.015 250);
+			border: 1px solid oklch(0.35 0.02 250); background: oklch(0.19 0.015 250);
 			color: inherit; font: inherit; outline: none;
 		}
-		input:focus { border-color: oklch(0.55 0.1 250); }
-		label { display: block; font-size: 0.85rem; color: oklch(0.7 0.02 250); margin: 0.9rem 0 0.3rem; }
+		input:focus { border-color: oklch(0.55 0.1 250); box-shadow: 0 0 0 2px oklch(0.5 0.1 250 / 0.25); }
+		label { display: block; font-size: 0.85rem; color: oklch(0.72 0.02 250); margin: 0.9rem 0 0.3rem; }
 		button {
 			cursor: pointer; border: none; border-radius: 0.5rem; padding: 0.55rem 1.1rem;
-			background: oklch(0.45 0.1 250); color: #fff; font: inherit; font-weight: 500;
+			background: oklch(0.45 0.11 250); color: #fff; font: inherit; font-weight: 500;
+			transition: filter 0.15s, transform 0.05s;
 		}
-		button:hover { background: oklch(0.52 0.12 250); }
+		button:hover { filter: brightness(1.15); }
+		button:active { transform: scale(0.98); }
 		button.ghost { background: oklch(0.3 0.02 250); }
 		button.danger { background: oklch(0.45 0.15 25); }
 		button:disabled { opacity: 0.5; cursor: not-allowed; }
 		.row { display: flex; gap: 1rem; } .row > div { flex: 1; }
-		#login-card { max-width: 22rem; margin: 20vh auto 0; text-align: center; }
-		#login-card input { text-align: center; margin-top: 1rem; }
+		#login-card { max-width: 24rem; margin: 18vh auto 0; text-align: center; padding: 2rem 2.5rem; }
+		#login-card .lock { font-size: 2rem; }
+		#login-card h2 { margin: 0.5rem 0 0; font-size: 1.05rem; font-weight: 600; }
+		#login-card input { text-align: center; margin-top: 1.2rem; }
 		#login-card button { margin-top: 1rem; width: 100%; }
 		.error { color: oklch(0.75 0.15 25); font-size: 0.85rem; margin-top: 0.6rem; min-height: 1.2em; }
+		.toolbar { display: flex; gap: 0.6rem; margin-bottom: 1rem; align-items: center; }
+		.chips { display: flex; gap: 0.4rem; margin-left: 0.4rem; }
+		.chip {
+			border: 1px solid oklch(0.35 0.02 250); background: transparent; color: oklch(0.75 0.02 250);
+			border-radius: 999px; padding: 0.3rem 0.9rem; font-size: 0.82rem;
+		}
+		.chip.on { background: oklch(0.4 0.1 250); border-color: transparent; color: #fff; }
 		table { width: 100%; border-collapse: collapse; }
 		th { text-align: left; font-weight: 500; color: oklch(0.65 0.02 250); font-size: 0.85rem; padding: 0.5rem 0.6rem; border-bottom: 1px solid oklch(0.32 0.02 250); }
 		td { padding: 0.6rem; border-bottom: 1px solid oklch(0.28 0.02 250); }
-		tr:hover td { background: oklch(0.26 0.02 250); }
+		tr:hover td { background: oklch(0.26 0.02 250 / 0.8); }
 		.badge { font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 999px; background: oklch(0.35 0.08 60); color: oklch(0.9 0.08 80); }
 		.badge.pub { background: oklch(0.3 0.08 160); color: oklch(0.85 0.1 160); }
 		td .acts button { padding: 0.3rem 0.7rem; font-size: 0.8rem; margin-left: 0.4rem; }
-		.toolbar { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
+		#editor-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+		#editor-head h2 { font-size: 1rem; margin: 0; font-weight: 600; color: oklch(0.85 0.03 250); }
+		#editor-head .hint { font-size: 0.78rem; color: oklch(0.6 0.02 250); }
 		#toast {
 			position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
 			background: oklch(0.3 0.05 160); color: oklch(0.9 0.1 160);
 			padding: 0.6rem 1.2rem; border-radius: 0.6rem; font-size: 0.9rem;
-			opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 99;
+			opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+			box-shadow: 0 4px 16px oklch(0 0 0 / 0.4);
 		}
 		#toast.show { opacity: 1; }
 		#toast.err { background: oklch(0.35 0.12 25); color: oklch(0.88 0.1 25); }
-		/* EasyMDE 暗色适配 */
-		.EasyMDEContainer .CodeMirror { background: oklch(0.2 0.015 250); color: inherit; border: 1px solid oklch(0.35 0.02 250); border-radius: 0.5rem; }
-		.EasyMDEContainer .CodeMirror-cursor { border-left-color: #fff; }
-		.EasyMDEContainer .editor-toolbar { background: oklch(0.26 0.02 250); border-color: oklch(0.35 0.02 250); border-radius: 0.5rem 0.5rem 0 0; }
-		.EasyMDEContainer .editor-toolbar a { color: oklch(0.8 0.02 250) !important; }
-		.EasyMDEContainer .editor-toolbar a.active { background: oklch(0.4 0.08 250) !important; }
-		.EasyMDEContainer .editor-preview, .EasyMDEContainer .editor-preview-side { background: oklch(0.19 0.015 250); color: inherit; }
-		.EasyMDEContainer .CodeMirror-selected { background: oklch(0.35 0.06 250) !important; }
+
+		/* ---- EasyMDE 暗色适配（必须 is:global，编辑器 DOM 是运行时生成的） ---- */
+		.EasyMDEContainer { --ed-bg: oklch(0.19 0.015 250); }
+		.EasyMDEContainer .CodeMirror {
+			height: auto; min-height: 22rem;
+			background: var(--ed-bg); color: oklch(0.88 0.01 250);
+			border: 1px solid oklch(0.32 0.02 250); border-radius: 0 0 0.5rem 0.5rem;
+			font-family: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+			font-size: 14px; line-height: 1.7; padding: 0.5rem 0.25rem;
+		}
+		.EasyMDEContainer .CodeMirror-scroll { min-height: 22rem; }
+		.EasyMDEContainer .CodeMirror-cursor { border-left-color: var(--ac); }
+		.EasyMDEContainer .CodeMirror-selected { background: oklch(0.35 0.07 250 / 0.6) !important; }
+		.EasyMDEContainer .CodeMirror-gutters { background: var(--ed-bg); border-right: 1px solid oklch(0.28 0.02 250); }
+		.EasyMDEContainer .editor-toolbar {
+			background: oklch(0.24 0.02 250);
+			border: 1px solid oklch(0.32 0.02 250); border-bottom: none;
+			border-radius: 0.5rem 0.5rem 0 0;
+		}
+		.EasyMDEContainer .editor-toolbar a { color: oklch(0.82 0.02 250) !important; border-radius: 0.35rem; }
+		.EasyMDEContainer .editor-toolbar a:hover { background: oklch(0.32 0.05 250) !important; border-color: transparent !important; }
+		.EasyMDEContainer .editor-toolbar a.active { background: oklch(0.42 0.11 250) !important; border-color: transparent !important; }
+		.EasyMDEContainer .editor-toolbar.separator { border-left-color: oklch(0.35 0.02 250); }
+		.EasyMDEContainer .editor-preview, .EasyMDEContainer .editor-preview-side {
+			background: oklch(0.17 0.015 250); color: oklch(0.88 0.01 250);
+		}
+		.EasyMDEContainer .editor-preview-side { border-left: 1px solid oklch(0.32 0.02 250); padding: 0.75rem 1rem; }
+		.EasyMDEContainer .editor-preview { padding: 0.75rem 1rem; }
+		.EasyMDEContainer .editor-statusbar { color: oklch(0.6 0.02 250); font-size: 0.78rem; }
+		/* 预览区的排版 */
+		.editor-preview pre, .editor-preview-side pre, .editor-preview code, .editor-preview-side code {
+			font-family: "JetBrains Mono Variable", ui-monospace, Menlo, Consolas, monospace; font-size: 13px;
+		}
+		.editor-preview pre, .editor-preview-side pre { background: oklch(0.13 0.015 250); border-radius: 0.5rem; padding: 0.75rem 1rem; overflow-x: auto; }
+		.editor-preview img, .editor-preview-side img { max-width: 100%; border-radius: 0.5rem; }
+		.editor-preview a, .editor-preview-side a { color: var(--ac); }
+		.editor-preview h1, .editor-preview-side h1 { border-bottom: 1px solid oklch(0.3 0.02 250); padding-bottom: 0.3em; }
+		.editor-preview blockquote, .editor-preview-side blockquote {
+			border-left: 3px solid var(--ac); margin: 0.5em 0; padding: 0.1em 1em; color: oklch(0.75 0.02 250);
+		}
+		.EasyMDEContainer .CodeMirror-placeholder { color: oklch(0.5 0.02 250); }
 	</style>
 </head>
 <body>
@@ -82,7 +137,8 @@ import "easymde/dist/easymde.min.css";
 	</header>
 
 	<section id="login-card" class="card hidden">
-		<h2 style="margin:0.2rem 0 0; font-size:1rem;">管理员登录</h2>
+		<div class="lock">🔐</div>
+		<h2>管理员登录</h2>
 		<input id="pw" type="password" placeholder="管理密码" autocomplete="current-password" />
 		<button id="btn-login">登录</button>
 		<div class="error" id="login-err"></div>
@@ -91,9 +147,14 @@ import "easymde/dist/easymde.min.css";
 	<section id="list-view" class="hidden">
 		<div class="toolbar">
 			<button id="btn-new">＋ 新建文章</button>
-			<button id="btn-refresh" class="ghost">刷新</button>
+			<div class="chips" id="filter-chips">
+				<button class="chip on" data-f="all">全部</button>
+				<button class="chip" data-f="pub">已发布</button>
+				<button class="chip" data-f="draft">草稿</button>
+			</div>
 			<span style="flex:1"></span>
-			<button id="btn-logout" class="ghost">退出登录</button>
+			<button id="btn-refresh" class="ghost">刷新</button>
+			<button id="btn-logout" class="ghost">退出</button>
 		</div>
 		<div class="card" style="padding: 0.5rem 1rem 1rem;">
 			<table>
@@ -104,13 +165,17 @@ import "easymde/dist/easymde.min.css";
 	</section>
 
 	<section id="editor-view" class="hidden">
+		<div id="editor-head">
+			<h2 id="editor-title">新建文章</h2>
+			<span class="hint">Ctrl+S 保存 · 图片可直接粘贴 / 拖入编辑器</span>
+		</div>
 		<div class="card">
 			<div class="row">
 				<div>
 					<label for="f-title">标题 *</label>
 					<input id="f-title" type="text" placeholder="文章标题" />
 				</div>
-				<div style="max-width:14rem">
+				<div style="max-width:13rem">
 					<label for="f-date">发布日期 *</label>
 					<input id="f-date" type="date" />
 				</div>
@@ -131,7 +196,7 @@ import "easymde/dist/easymde.min.css";
 				<input id="f-draft" type="checkbox" style="width:auto" />
 				草稿（勾选 = 不发布到首页）
 			</label>
-			<label for="body">正文（Markdown）</label>
+			<label for="body">正文（左侧写，右侧实时预览）</label>
 			<textarea id="body"></textarea>
 			<div style="display:flex; gap:0.6rem; margin-top:1.2rem;">
 				<button id="btn-save">保存并发布</button>
@@ -148,12 +213,53 @@ import "easymde/dist/easymde.min.css";
 	import EasyMDE from "easymde";
 
 	const $ = (id) => document.getElementById(id);
+	let filter = "all";
+	let allPosts = [];
+	let editing = null; // { file, sha } 或 null=新建
+
 	const mde = new EasyMDE({
 		element: $("body"),
 		spellChecker: false,
+		sideBySide: true,
+		uploadImages: true,
+		imageUploadFunction: (file, onSuccess, onError) => {
+			const reader = new FileReader();
+			reader.onload = async () => {
+				try {
+					const r = await api("/api/upload", {
+						method: "POST",
+						body: { filename: file.name, base64: reader.result.split(",")[1] },
+					});
+					toast("图片已上传，站点构建完成后即可显示（约 1~2 分钟）");
+					onSuccess(r.url);
+				} catch (e) {
+					onError(String(e.message || e));
+				}
+			};
+			reader.onerror = () => onError("读取文件失败");
+			reader.readAsDataURL(file);
+		},
+		imageAccept: "image/png, image/jpeg, image/gif, image/webp, image/avif, image/svg+xml",
 		status: ["lines", "words"],
-		placeholder: "用 Markdown 写正文……",
-		toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "code", "table", "link", "image", "|", "preview", "side-by-side", "fullscreen"],
+		placeholder: "用 Markdown 写正文，支持直接粘贴图片……",
+		toolbar: [
+			{ name: "bold", action: EasyMDE.toggleBold, title: "加粗 (Ctrl+B)" },
+			{ name: "italic", action: EasyMDE.toggleItalic, title: "斜体 (Ctrl+I)" },
+			{ name: "heading", action: EasyMDE.toggleHeadingSmaller, title: "标题 (Ctrl+H)" },
+			"|",
+			{ name: "quote", action: EasyMDE.toggleBlockquote, title: "引用 (Ctrl+Q)" },
+			{ name: "unordered-list", action: EasyMDE.toggleUnorderedList, title: "无序列表" },
+			{ name: "ordered-list", action: EasyMDE.toggleOrderedList, title: "有序列表" },
+			"|",
+			{ name: "code", action: EasyMDE.toggleCodeBlock, title: "代码块 (Ctrl+`)" },
+			{ name: "table", action: EasyMDE.drawTable, title: "表格" },
+			{ name: "link", action: EasyMDE.drawLink, title: "插入链接 (Ctrl+K)" },
+			{ name: "image", action: EasyMDE.drawImage, title: "插入图片（可拖拽/粘贴）" },
+			"|",
+			{ name: "preview", action: EasyMDE.togglePreview, title: "预览 (Ctrl+P)" },
+			{ name: "side-by-side", action: EasyMDE.toggleSideBySide, title: "双栏实时预览 (F9)" },
+			{ name: "fullscreen", action: EasyMDE.toggleFullScreen, title: "全屏 (F11)" },
+		],
 	});
 
 	function toast(msg, err = false) {
@@ -181,17 +287,21 @@ import "easymde/dist/easymde.min.css";
 		return data;
 	}
 
-	let editing = null; // { file, sha } 或 null=新建
-
-	async function loadList() {
-		const { posts } = await api("/api/posts");
-		renderRows(posts || []);
-	}
-
 	function renderRows(posts) {
 		const tbody = $("post-rows");
 		tbody.textContent = "";
-		for (const p of posts) {
+		const list = posts.filter((p) =>
+			filter === "all" ? true : filter === "draft" ? p.draft : !p.draft
+		);
+		if (!list.length) {
+			const tr = document.createElement("tr");
+			const td = document.createElement("td");
+			td.colSpan = 4; td.style.textAlign = "center"; td.style.color = "oklch(0.55 0.02 250)";
+			td.textContent = "没有文章";
+			tr.appendChild(td); tbody.appendChild(tr);
+			return;
+		}
+		for (const p of list) {
 			const tr = document.createElement("tr");
 			const tdT = document.createElement("td"); tdT.textContent = p.title;
 			const tdD = document.createElement("td"); tdD.textContent = p.published || "—";
@@ -215,10 +325,17 @@ import "easymde/dist/easymde.min.css";
 		}
 	}
 
+	async function loadList() {
+		const { posts } = await api("/api/posts");
+		allPosts = posts || [];
+		renderRows(allPosts);
+	}
+
 	function today() { return new Date().toISOString().slice(0, 10); }
 
 	function openEditor(post = null) {
 		editing = post ? { file: post.file, sha: post.sha } : null;
+		$("editor-title").textContent = post ? `编辑：${post.title}` : "新建文章";
 		$("f-title").value = "";
 		$("f-date").value = today();
 		$("f-desc").value = "";
@@ -290,10 +407,22 @@ import "easymde/dist/easymde.min.css";
 	$("btn-refresh").onclick = () => loadList().catch((e) => toast(String(e.message || e), true));
 	$("btn-back").onclick = () => { show("list-view"); loadList().catch(() => {}); };
 	$("btn-save").onclick = save;
+	document.addEventListener("keydown", (e) => {
+		if ((e.ctrlKey || e.metaKey) && e.key === "s" && !$("editor-view").classList.contains("hidden")) {
+			e.preventDefault(); save();
+		}
+	});
+	for (const chip of document.querySelectorAll("#filter-chips .chip")) {
+		chip.onclick = () => {
+			filter = chip.dataset.f;
+			for (const c of document.querySelectorAll("#filter-chips .chip")) c.classList.toggle("on", c === chip);
+			renderRows(allPosts);
+		};
+	}
 
 	// 初始：有会话直接进列表，没有就显示登录
 	api("/api/posts")
-		.then((d) => { show("list-view"); renderRows(d.posts || []); })
+		.then((d) => { show("list-view"); allPosts = d.posts || []; renderRows(allPosts); })
 		.catch(() => {});
 </script>
 </body>

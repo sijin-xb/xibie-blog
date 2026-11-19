@@ -136,6 +136,28 @@ export async function ghWriteFile(
 	}
 }
 
+/* 图片等二进制：base64 直接透传，不做 UTF-8 转换 */
+export async function ghWriteFileBase64(
+	env: Env,
+	path: string,
+	base64: string,
+	message?: string,
+): Promise<void> {
+	const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
+		method: "PUT",
+		headers: { ...ghHeaders(env), "Content-Type": "application/json" },
+		body: JSON.stringify({
+			message: message || `Upload ${path} (via blog admin)`,
+			content: base64,
+			branch: branch(env),
+		}),
+	});
+	if (!res.ok) {
+		const detail = (await res.json().catch(() => ({}))) as { message?: string };
+		throw new Error(`GitHub 上传失败: ${res.status} ${detail.message || ""}`);
+	}
+}
+
 export async function ghDeleteFile(env: Env, path: string, sha: string): Promise<void> {
 	const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
 		method: "DELETE",
