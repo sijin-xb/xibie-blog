@@ -36,6 +36,7 @@
     "astro": "5.13.10",
     "astro-expressive-code": "^0.41.4",
     "astro-icon": "^1.1.5",
+    "easymde": "^2.21.0",
     "hastscript": "^9.0.1",
     "katex": "^0.16.27",
     "markdown-it": "^14.1.0",
@@ -74,6 +75,8 @@
   },
   "packageManager": "pnpm@9.14.4",
   "pnpm": {
-    "neverBuiltDependencies": ["sharp"]
+    "neverBuiltDependencies": [
+      "sharp"
+    ]
   }
 }

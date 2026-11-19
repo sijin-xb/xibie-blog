@@ -1,0 +1,300 @@
+---
+// 管理后台：静态壳，所有操作走 /api/*（Pages Functions），数据在 GitHub 仓库
+import EasyMDE from "easymde";
+import "easymde/dist/easymde.min.css";
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width" />
+	<meta name="robots" content="noindex, nofollow" />
+	<title>后台管理 · xibie 的博客</title>
+	<style>
+		:root { color-scheme: dark; }
+		* { box-sizing: border-box; }
+		body {
+			margin: 0; min-height: 100vh;
+			background: oklch(0.16 0.014 250); color: oklch(0.92 0.01 250);
+			font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+			font-size: 15px;
+		}
+		main { max-width: 62rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+		header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+		header h1 { font-size: 1.15rem; margin: 0; font-weight: 600; }
+		header a { color: oklch(0.75 0.1 250); text-decoration: none; font-size: 0.85rem; }
+		.card {
+			background: oklch(0.23 0.015 250); border-radius: 1rem; padding: 1.5rem;
+			box-shadow: 0 2px 12px oklch(0 0 0 / 0.25);
+		}
+		.hidden { display: none !important; }
+		input, textarea {
+			width: 100%; padding: 0.55rem 0.75rem; border-radius: 0.5rem;
+			border: 1px solid oklch(0.35 0.02 250); background: oklch(0.2 0.015 250);
+			color: inherit; font: inherit; outline: none;
+		}
+		input:focus { border-color: oklch(0.55 0.1 250); }
+		label { display: block; font-size: 0.85rem; color: oklch(0.7 0.02 250); margin: 0.9rem 0 0.3rem; }
+		button {
+			cursor: pointer; border: none; border-radius: 0.5rem; padding: 0.55rem 1.1rem;
+			background: oklch(0.45 0.1 250); color: #fff; font: inherit; font-weight: 500;
+		}
+		button:hover { background: oklch(0.52 0.12 250); }
+		button.ghost { background: oklch(0.3 0.02 250); }
+		button.danger { background: oklch(0.45 0.15 25); }
+		button:disabled { opacity: 0.5; cursor: not-allowed; }
+		.row { display: flex; gap: 1rem; } .row > div { flex: 1; }
+		#login-card { max-width: 22rem; margin: 20vh auto 0; text-align: center; }
+		#login-card input { text-align: center; margin-top: 1rem; }
+		#login-card button { margin-top: 1rem; width: 100%; }
+		.error { color: oklch(0.75 0.15 25); font-size: 0.85rem; margin-top: 0.6rem; min-height: 1.2em; }
+		table { width: 100%; border-collapse: collapse; }
+		th { text-align: left; font-weight: 500; color: oklch(0.65 0.02 250); font-size: 0.85rem; padding: 0.5rem 0.6rem; border-bottom: 1px solid oklch(0.32 0.02 250); }
+		td { padding: 0.6rem; border-bottom: 1px solid oklch(0.28 0.02 250); }
+		tr:hover td { background: oklch(0.26 0.02 250); }
+		.badge { font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 999px; background: oklch(0.35 0.08 60); color: oklch(0.9 0.08 80); }
+		.badge.pub { background: oklch(0.3 0.08 160); color: oklch(0.85 0.1 160); }
+		td .acts button { padding: 0.3rem 0.7rem; font-size: 0.8rem; margin-left: 0.4rem; }
+		.toolbar { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
+		#toast {
+			position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+			background: oklch(0.3 0.05 160); color: oklch(0.9 0.1 160);
+			padding: 0.6rem 1.2rem; border-radius: 0.6rem; font-size: 0.9rem;
+			opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 99;
+		}
+		#toast.show { opacity: 1; }
+		#toast.err { background: oklch(0.35 0.12 25); color: oklch(0.88 0.1 25); }
+		/* EasyMDE 暗色适配 */
+		.EasyMDEContainer .CodeMirror { background: oklch(0.2 0.015 250); color: inherit; border: 1px solid oklch(0.35 0.02 250); border-radius: 0.5rem; }
+		.EasyMDEContainer .CodeMirror-cursor { border-left-color: #fff; }
+		.EasyMDEContainer .editor-toolbar { background: oklch(0.26 0.02 250); border-color: oklch(0.35 0.02 250); border-radius: 0.5rem 0.5rem 0 0; }
+		.EasyMDEContainer .editor-toolbar a { color: oklch(0.8 0.02 250) !important; }
+		.EasyMDEContainer .editor-toolbar a.active { background: oklch(0.4 0.08 250) !important; }
+		.EasyMDEContainer .editor-preview, .EasyMDEContainer .editor-preview-side { background: oklch(0.19 0.015 250); color: inherit; }
+		.EasyMDEContainer .CodeMirror-selected { background: oklch(0.35 0.06 250) !important; }
+	</style>
+</head>
+<body>
+<main>
+	<header>
+		<h1>xibie 的博客 · 后台</h1>
+		<a href="/">← 回到博客</a>
+	</header>
+
+	<section id="login-card" class="card hidden">
+		<h2 style="margin:0.2rem 0 0; font-size:1rem;">管理员登录</h2>
+		<input id="pw" type="password" placeholder="管理密码" autocomplete="current-password" />
+		<button id="btn-login">登录</button>
+		<div class="error" id="login-err"></div>
+	</section>
+
+	<section id="list-view" class="hidden">
+		<div class="toolbar">
+			<button id="btn-new">＋ 新建文章</button>
+			<button id="btn-refresh" class="ghost">刷新</button>
+			<span style="flex:1"></span>
+			<button id="btn-logout" class="ghost">退出登录</button>
+		</div>
+		<div class="card" style="padding: 0.5rem 1rem 1rem;">
+			<table>
+				<thead><tr><th>标题</th><th>发布日期</th><th>状态</th><th style="text-align:right">操作</th></tr></thead>
+				<tbody id="post-rows"></tbody>
+			</table>
+		</div>
+	</section>
+
+	<section id="editor-view" class="hidden">
+		<div class="card">
+			<div class="row">
+				<div>
+					<label for="f-title">标题 *</label>
+					<input id="f-title" type="text" placeholder="文章标题" />
+				</div>
+				<div style="max-width:14rem">
+					<label for="f-date">发布日期 *</label>
+					<input id="f-date" type="date" />
+				</div>
+			</div>
+			<label for="f-desc">摘要（显示在首页卡片上）</label>
+			<input id="f-desc" type="text" />
+			<div class="row">
+				<div>
+					<label for="f-tags">标签（英文逗号分隔）</label>
+					<input id="f-tags" type="text" placeholder="Linux, 折腾" />
+				</div>
+				<div>
+					<label for="f-cat">分类</label>
+					<input id="f-cat" type="text" />
+				</div>
+			</div>
+			<label style="display:flex; align-items:center; gap:0.5rem; margin-top:1rem; cursor:pointer">
+				<input id="f-draft" type="checkbox" style="width:auto" />
+				草稿（勾选 = 不发布到首页）
+			</label>
+			<label for="body">正文（Markdown）</label>
+			<textarea id="body"></textarea>
+			<div style="display:flex; gap:0.6rem; margin-top:1.2rem;">
+				<button id="btn-save">保存并发布</button>
+				<button id="btn-back" class="ghost">返回列表</button>
+				<span style="flex:1"></span>
+				<span class="error" id="editor-err" style="align-self:center"></span>
+			</div>
+		</div>
+	</section>
+</main>
+<div id="toast"></div>
+
+<script>
+	import EasyMDE from "easymde";
+
+	const $ = (id) => document.getElementById(id);
+	const mde = new EasyMDE({
+		element: $("body"),
+		spellChecker: false,
+		status: ["lines", "words"],
+		placeholder: "用 Markdown 写正文……",
+		toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "code", "table", "link", "image", "|", "preview", "side-by-side", "fullscreen"],
+	});
+
+	function toast(msg, err = false) {
+		const t = $("toast");
+		t.textContent = msg;
+		t.classList.toggle("err", err);
+		t.classList.add("show");
+		setTimeout(() => t.classList.remove("show"), 3200);
+	}
+
+	function show(id) {
+		for (const v of ["login-card", "list-view", "editor-view"]) $(v).classList.toggle("hidden", v !== id);
+	}
+
+	async function api(path, opts = {}) {
+		const res = await fetch(path, {
+			credentials: "same-origin",
+			headers: { "Content-Type": "application/json" },
+			...opts,
+			body: opts.body ? JSON.stringify(opts.body) : undefined,
+		});
+		if (res.status === 401) { show("login-card"); throw new Error("请先登录"); }
+		const data = await res.json().catch(() => ({}));
+		if (!res.ok) throw new Error(data.error || `请求失败 (${res.status})`);
+		return data;
+	}
+
+	let editing = null; // { file, sha } 或 null=新建
+
+	async function loadList() {
+		const { posts } = await api("/api/posts");
+		renderRows(posts || []);
+	}
+
+	function renderRows(posts) {
+		const tbody = $("post-rows");
+		tbody.textContent = "";
+		for (const p of posts) {
+			const tr = document.createElement("tr");
+			const tdT = document.createElement("td"); tdT.textContent = p.title;
+			const tdD = document.createElement("td"); tdD.textContent = p.published || "—";
+			const tdS = document.createElement("td");
+			const badge = document.createElement("span");
+			badge.className = "badge" + (p.draft ? "" : " pub");
+			badge.textContent = p.draft ? "草稿" : "已发布";
+			tdS.appendChild(badge);
+			const tdA = document.createElement("td"); tdA.style.textAlign = "right";
+			const bEdit = document.createElement("button"); bEdit.className = "ghost"; bEdit.textContent = "编辑";
+			const bDel = document.createElement("button"); bDel.className = "danger"; bDel.textContent = "删除";
+			bEdit.onclick = () => openEditor(p);
+			bDel.onclick = async () => {
+				if (!confirm(`确定删除「${p.title}」？此操作会提交到 GitHub。`)) return;
+				try { await api(`/api/posts/${encodeURIComponent(p.file)}`, { method: "DELETE", body: { sha: p.sha } }); toast("已删除，部署中"); loadList(); }
+				catch (e) { toast(String(e.message || e), true); }
+			};
+			tdA.append(bEdit, bDel);
+			tr.append(tdT, tdD, tdS, tdA);
+			tbody.appendChild(tr);
+		}
+	}
+
+	function today() { return new Date().toISOString().slice(0, 10); }
+
+	function openEditor(post = null) {
+		editing = post ? { file: post.file, sha: post.sha } : null;
+		$("f-title").value = "";
+		$("f-date").value = today();
+		$("f-desc").value = "";
+		$("f-tags").value = "";
+		$("f-cat").value = "";
+		$("f-draft").checked = false;
+		$("editor-err").textContent = "";
+		if (post) {
+			api(`/api/posts/${encodeURIComponent(post.file)}`).then((d) => {
+				editing = { file: d.file, sha: d.sha };
+				$("f-title").value = d.title;
+				$("f-date").value = d.published || today();
+				$("f-desc").value = d.description || "";
+				$("f-tags").value = (d.tags || []).join(", ");
+				$("f-cat").value = d.category || "";
+				$("f-draft").checked = !!d.draft;
+				mde.value(d.body || "");
+			}).catch((e) => toast(String(e.message || e), true));
+		} else {
+			mde.value("");
+		}
+		show("editor-view");
+	}
+
+	async function save() {
+		const title = $("f-title").value.trim();
+		const published = $("f-date").value;
+		if (!title || !published) { $("editor-err").textContent = "标题和日期必填"; return; }
+		const payload = {
+			title,
+			published,
+			description: $("f-desc").value.trim(),
+			tags: $("f-tags").value.split(/[,，]/).map((s) => s.trim()).filter(Boolean),
+			category: $("f-cat").value.trim(),
+			draft: $("f-draft").checked,
+			body: mde.value(),
+		};
+		$("btn-save").disabled = true;
+		try {
+			if (editing) {
+				await api(`/api/posts/${encodeURIComponent(editing.file)}`, { method: "PUT", body: { ...payload, sha: editing.sha } });
+			} else {
+				await api("/api/posts", { method: "POST", body: payload });
+			}
+			toast(payload.draft ? "已保存草稿" : "已提交，Cloudflare 部署中（约 1~2 分钟上线）");
+			show("list-view");
+			await loadList();
+		} catch (e) {
+			$("editor-err").textContent = String(e.message || e);
+		} finally {
+			$("btn-save").disabled = false;
+		}
+	}
+
+	$("btn-login").onclick = async () => {
+		$("login-err").textContent = "";
+		try {
+			await api("/api/login", { method: "POST", body: { password: $("pw").value } });
+			$("pw").value = "";
+			show("list-view");
+			await loadList();
+		} catch (e) {
+			$("login-err").textContent = String(e.message || e);
+		}
+	};
+	$("pw").onkeydown = (e) => { if (e.key === "Enter") $("btn-login").click(); };
+	$("btn-logout").onclick = async () => { await api("/api/logout", { method: "POST" }); show("login-card"); };
+	$("btn-new").onclick = () => openEditor(null);
+	$("btn-refresh").onclick = () => loadList().catch((e) => toast(String(e.message || e), true));
+	$("btn-back").onclick = () => { show("list-view"); loadList().catch(() => {}); };
+	$("btn-save").onclick = save;
+
+	// 初始：有会话直接进列表，没有就显示登录
+	api("/api/posts")
+		.then((d) => { show("list-view"); renderRows(d.posts || []); })
+		.catch(() => {});
+</script>
+</body>
+</html>
