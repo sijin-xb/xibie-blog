@@ -8,6 +8,23 @@
 - **折腾** —— Linux、各种工具、小项目
 - **想法** —— 偶尔的一些碎碎念
 
+## 开源仓库
+
+瞎折腾过程中留下的一些东西：
+
+::github{repo="sijin-xb/dotfiles"}
+
+::github{repo="sijin-xb/kugou-tui"}
+
+::github{repo="sijin-xb/cursor-manager"}
+
+::github{repo="sijin-xb/anti-ai-slop"}
+
+还有一些周边小仓库：
+
+- [dms-patches](https://github.com/sijin-xb/dms-patches) —— DankMaterialShell / Dux Shell 的个人补丁集
+- [kugou-tui-repo](https://github.com/sijin-xb/kugou-tui-repo) —— kugou-tui 的 Arch Linux pacman 仓库（自动构建）
+
 ## 关于本站
 
 - 框架：[Astro](https://astro.build)，主题 [Fuwari](https://github.com/saicaca/fuwari)，自己改了不少地方
