@@ -43,14 +43,17 @@ if (!fs.existsSync(dirPath)) {
 }
 
 const content = `---
+# title: 文章标题，显示在首页卡片和文章页
+# published: 发布日期（已自动填今天）
+# description: 摘要，显示在首页卡片上
+# tags / category: 标签和分类，用于归档页筛选
+# draft: true 表示草稿，不会发布；想发布就删掉这一行
 title: ${args[0]}
 published: ${getDate()}
 description: ''
-image: ''
 tags: []
 category: ''
-draft: false 
-lang: ''
+draft: false
 ---
 `
 

@@ -20,6 +20,18 @@ import type { Favicon } from "../types/config";
 import { pathsEqual, url } from "../utils/url-utils";
 import "katex/dist/katex.css";
 
+/* 全站样式显式导入：顺序不能乱，variables.styl 定义 :root 色板，
+   main.css 里的 .link 会被 markdown.css @apply。
+   （上游原本全靠 ImageWrapper 的 import.meta.glob("../../**") 意外把这些样式带进构建） */
+import "../styles/variables.styl";
+import "../styles/main.css";
+import "../styles/markdown.css";
+import "../styles/markdown-extend.styl";
+import "../styles/transition.css";
+import "../styles/scrollbar.css";
+import "../styles/photoswipe.css";
+import "../styles/expressive-code.css";
+
 interface Props {
 	title?: string;
 	banner?: string;

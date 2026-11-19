@@ -28,10 +28,12 @@ const isPublic = src.startsWith("/");
 // https://github.com/withastro/astro/issues/3373
 // biome-ignore lint/suspicious/noImplicitAnyLet: <check later>
 let img;
-if (isLocal) {
-	const files = import.meta.glob<ImageMetadata>("../../**", {
-		import: "default",
-	});
+	if (isLocal) {
+		// 图片只可能放在 src/assets 或 src/content 下，不要用 "../../**"
+		// —— 那会把 src/styles 下的 CSS 也拖进构建图，引发 tailwind @apply 的顺序竞态
+		const files = import.meta.glob<ImageMetadata>("../../{assets,content}/**", {
+			import: "default",
+		});
 	let normalizedPath = path
 		.normalize(path.join("../../", basePath, src))
 		.replace(/\\/g, "/");
