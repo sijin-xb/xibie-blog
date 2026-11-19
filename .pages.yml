@@ -1,0 +1,34 @@
+# Pages CMS 配置 — 在 https://pagescms.org 用 GitHub 登录后即可可视化写文章
+media:
+  input: public/uploads
+  output: /uploads
+
+content:
+  - name: posts
+    label: 文章
+    type: collection
+    path: src/content/posts
+    filename: "{year}-{month}-{day}-{slug}.md"
+    view:
+      fields: [title, published, draft]
+      primary: title
+      sort: [published, draft]
+      default:
+        sort: published
+        order: desc
+    fields:
+      - { name: title, label: 标题, type: string, required: true }
+      - { name: published, label: 发布日期, type: date, required: true }
+      - { name: description, label: 摘要, type: text, description: 显示在首页卡片上 }
+      - { name: image, label: 封面图, type: image }
+      - { name: tags, label: 标签, type: string, list: true }
+      - { name: category, label: 分类, type: string }
+      - { name: draft, label: 草稿, type: boolean, default: false, description: 打开则不发布，写完记得关掉 }
+      - { name: body, label: 正文, type: rich-text }
+
+  - name: about
+    label: 关于页
+    type: file
+    path: src/content/spec/about.md
+    fields:
+      - { name: body, label: 内容, type: rich-text }

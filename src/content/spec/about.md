@@ -1,17 +1,26 @@
 # 关于
 
-你好，我是 **xibie** 👋
+这里是 xibie 的博客，没有什么自我介绍，只有记下来的东西。
 
-这里是我在互联网上的一个小角落，用来记录技术、思考和日常生活。
+主要写这几类：
+
+- **技术笔记** —— 踩坑、配置、解决问题的过程记录
+- **折腾** —— Linux、各种工具、小项目
+- **想法** —— 偶尔的一些碎碎念
+
+## 关于本站
+
+- 框架：[Astro](https://astro.build)，主题 [Fuwari](https://github.com/saicaca/fuwari)，自己改了不少地方
+- 部署：Cloudflare Pages，push 即上线
+- 写作：Markdown，支持代码高亮、数学公式、提示块、目录
+
+::github{repo="sijin-xb/xibie-blog"}
+
+## 联系
 
 - GitHub：[sijin-xb](https://github.com/sijin-xb)
 - Bilibili：[xibie 的空间](https://space.bilibili.com/696673209)
 
-## 关于本站
+## 版权
 
-本站基于 [Astro](https://astro.build) 构建，部署在 Cloudflare Pages 上。
-
-::github{repo="sijin-xb/xibie-blog"}
-
-> [!NOTE]
-> 这个页面还只是一份底稿——把上面换成你想说的话就行：你是谁、在做什么、兴趣是什么、为什么写博客。
+站内原创文章默认采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可，转载请注明出处。
